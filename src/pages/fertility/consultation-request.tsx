@@ -8,9 +8,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import type { SpecialistType } from '@/types/fertility'
-import { UserPlus, Stethoscope, Heart, Activity } from 'lucide-react'
+import { UserPlus, Stethoscope, Heart, Activity, Star, type LucideIcon } from 'lucide-react'
+import { mockDoctors } from '@/data/mock-specialists'
 
 export const ConsultationRequest = () => {
   const { t } = useTranslation()
@@ -21,7 +23,7 @@ export const ConsultationRequest = () => {
   const [description, setDescription] = useState('')
   const [consentGiven, setConsentGiven] = useState(false)
 
-  const specialists: { type: SpecialistType; label: string; description: string; icon: any }[] = [
+  const specialists: { type: SpecialistType; label: string; description: string; icon: LucideIcon }[] = [
     {
       type: 'gynecologist',
       label: 'Ginekolog',
@@ -115,6 +117,43 @@ export const ConsultationRequest = () => {
                     )
                   })}
                 </RadioGroup>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Dostępni specjaliści</CardTitle>
+                <CardDescription>
+                  Wybierz lekarza, z którym chcesz się skonsultować
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {(mockDoctors[specialistType] ?? []).map((doctor) => (
+                  <div
+                    key={doctor.id}
+                    className="flex items-start gap-4 p-4 rounded-lg border hover:bg-accent transition-colors"
+                  >
+                    <img
+                      src={doctor.avatarUrl}
+                      alt={doctor.name}
+                      className="h-12 w-12 rounded-full bg-muted shrink-0"
+                      aria-hidden="true"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium text-sm">{doctor.name}</span>
+                        {doctor.isRecommended && (
+                          <Badge variant="secondary" className="flex items-center gap-1 text-xs">
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" aria-hidden="true" />
+                            Polecany
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">{doctor.specialization}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{doctor.description}</p>
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
 
