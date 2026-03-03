@@ -360,14 +360,14 @@ export const CycleCalendar = () => {
   const handleDayClick = (date: Date, info: ICycleDayInfo | undefined) => {
     if (!info) return
     const entry = info.cycleEntry
-    const clickedStr = date.toISOString()
+    const ovulationDateISO = date.toISOString()
     const isAlreadyOvulation =
       entry.ovulationDate && isSameDay(parseISO(entry.ovulationDate), date)
 
     dispatch(
       setOvulationDate({
         entryId: entry.id,
-        date: isAlreadyOvulation ? undefined : clickedStr,
+        date: isAlreadyOvulation ? undefined : ovulationDateISO,
       }),
     )
   }

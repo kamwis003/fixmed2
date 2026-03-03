@@ -19,6 +19,8 @@ interface IFertilityState {
 
 const STORAGE_KEY = 'fertility_cycles'
 
+export { STORAGE_KEY as FERTILITY_STORAGE_KEY }
+
 function loadFromStorage(): ICycleEntryRedux[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)

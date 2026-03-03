@@ -1,9 +1,7 @@
 import type { UnknownAction } from '@reduxjs/toolkit'
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { resetApp } from './app-actions'
-import fertilityReducer from './fertility-slice'
-
-const FERTILITY_STORAGE_KEY = 'fertility_cycles'
+import fertilityReducer, { FERTILITY_STORAGE_KEY } from './fertility-slice'
 
 const appReducer = combineReducers({
   fertility: fertilityReducer,
