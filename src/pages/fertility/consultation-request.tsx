@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast'
 import type { SpecialistType } from '@/types/fertility'
 import { UserPlus, Stethoscope, Heart, Activity, Star, type LucideIcon } from 'lucide-react'
 import { mockDoctors } from '@/data/mock-specialists'
+import { cn } from '@/lib/utils'
 
 export const ConsultationRequest = () => {
   const { t } = useTranslation()
@@ -20,6 +21,7 @@ export const ConsultationRequest = () => {
   useDocumentTitle('fertility.consultation.title')
 
   const [specialistType, setSpecialistType] = useState<SpecialistType>('gynecologist')
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null)
   const [description, setDescription] = useState('')
   const [consentGiven, setConsentGiven] = useState(false)
 
@@ -43,6 +45,11 @@ export const ConsultationRequest = () => {
       icon: Activity
     }
   ]
+
+  const handleSpecialistTypeChange = (value: string) => {
+    setSpecialistType(value as SpecialistType)
+    setSelectedDoctorId(null)
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -98,7 +105,7 @@ export const ConsultationRequest = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <RadioGroup value={specialistType} onValueChange={(value) => setSpecialistType(value as SpecialistType)}>
+                <RadioGroup value={specialistType} onValueChange={handleSpecialistTypeChange}>
                   {specialists.map((specialist) => {
                     const Icon = specialist.icon
                     return (
@@ -129,9 +136,14 @@ export const ConsultationRequest = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 {(mockDoctors[specialistType] ?? []).map((doctor) => (
-                  <div
+                  <button
                     key={doctor.id}
-                    className="flex items-start gap-4 p-4 rounded-lg border hover:bg-accent transition-colors"
+                    type="button"
+                    onClick={() => setSelectedDoctorId(doctor.id)}
+                    className={cn(
+                      'w-full flex items-start gap-4 p-4 rounded-lg border text-left transition-colors hover:bg-accent',
+                      selectedDoctorId === doctor.id && 'border-primary ring-2 ring-primary bg-accent'
+                    )}
                   >
                     <img
                       src={doctor.avatarUrl}
@@ -152,7 +164,7 @@ export const ConsultationRequest = () => {
                       <p className="text-xs text-muted-foreground mt-0.5">{doctor.specialization}</p>
                       <p className="text-sm text-muted-foreground mt-1">{doctor.description}</p>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </CardContent>
             </Card>
