@@ -3,7 +3,50 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { BookOpen, Heart, Baby } from 'lucide-react'
+import { BookOpen, Heart, Baby, PlayCircle } from 'lucide-react'
+
+function extractYouTubeId(url: string): string | null {
+  const match = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/
+  )
+  return match ? match[1] : null
+}
+
+interface IYouTubeVideo {
+  url: string
+  title: string
+  description: string
+}
+
+const VIDEO_TUTORIALS: IYouTubeVideo[] = [
+  {
+    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    title: 'Cykl menstruacyjny – co warto wiedzieć?',
+    description: 'Przewodnik po fazach cyklu i ich wpływie na organizm.',
+  },
+  {
+    url: 'https://youtu.be/3JZ_D3ELwOQ',
+    title: 'Planowanie ciąży krok po kroku',
+    description: 'Jak przygotować się do ciąży i kiedy szukać pomocy specjalisty.',
+  },
+]
+
+interface IYouTubeEmbedProps {
+  videoId: string
+  title: string
+}
+
+const YouTubeEmbed = ({ videoId, title }: IYouTubeEmbedProps) => (
+  <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+    <iframe
+      className="absolute inset-0 h-full w-full rounded-md"
+      src={`https://www.youtube-nocookie.com/embed/${videoId}`}
+      title={title}
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+    />
+  </div>
+)
 
 export const FertilityEducation = () => {
   const { t } = useTranslation()
@@ -23,7 +66,7 @@ export const FertilityEducation = () => {
       </Alert>
 
       <Tabs defaultValue="cycle" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="cycle">
             <Heart className="mr-2 h-4 w-4" />
             Cykl menstruacyjny
@@ -35,6 +78,10 @@ export const FertilityEducation = () => {
           <TabsTrigger value="planning">
             <BookOpen className="mr-2 h-4 w-4" />
             Planowanie ciąży
+          </TabsTrigger>
+          <TabsTrigger value="videos">
+            <PlayCircle className="mr-2 h-4 w-4" />
+            Videotutoriale
           </TabsTrigger>
         </TabsList>
 
@@ -180,6 +227,36 @@ export const FertilityEducation = () => {
                 <li>Masz schorzenia mogące wpływać na płodność (PCOS, endometrioza)</li>
                 <li>Przebyte infekcje układu rozrodczego</li>
               </ul>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="videos" className="space-y-4 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Videotutoriale</CardTitle>
+              <CardDescription>
+                Materiały wideo przygotowane przez specjalistów
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {VIDEO_TUTORIALS.map((video) => {
+                const videoId = extractYouTubeId(video.url)
+                if (!videoId) {
+                  return (
+                    <p key={video.url} className="text-sm text-muted-foreground">
+                      Nie można załadować wideo: {video.title}
+                    </p>
+                  )
+                }
+                return (
+                  <div key={videoId} className="space-y-2">
+                    <YouTubeEmbed videoId={videoId} title={video.title} />
+                    <h4 className="font-semibold text-sm">{video.title}</h4>
+                    <p className="text-sm text-muted-foreground">{video.description}</p>
+                  </div>
+                )
+              })}
             </CardContent>
           </Card>
         </TabsContent>
