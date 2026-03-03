@@ -1,9 +1,10 @@
 import type { UnknownAction } from '@reduxjs/toolkit'
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { resetApp } from './app-actions'
+import fertilityReducer, { FERTILITY_STORAGE_KEY } from './fertility-slice'
 
 const appReducer = combineReducers({
-  // Add your reducers here
+  fertility: fertilityReducer,
 })
 
 const rootReducer = (
@@ -18,6 +19,17 @@ const rootReducer = (
 
 export const store = configureStore({
   reducer: rootReducer,
+})
+
+store.subscribe(() => {
+  try {
+    localStorage.setItem(
+      FERTILITY_STORAGE_KEY,
+      JSON.stringify(store.getState().fertility.entries),
+    )
+  } catch {
+    // ignore storage errors
+  }
 })
 
 export type RootState = ReturnType<typeof store.getState>

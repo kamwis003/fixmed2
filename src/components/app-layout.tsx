@@ -8,7 +8,7 @@ import { ScrollToTop } from './scroll-to-top'
 import { CookieConsent } from './blocks/cookie-consent'
 
 export const AppLayout = () => {
-  const { user } = useAuth()
+  useAuth()
 
   return (
     <div className="bg-background text-foreground flex min-h-screen flex-col antialiased">

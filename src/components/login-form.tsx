@@ -32,7 +32,7 @@ export const LoginForm = ({
   ...props
 }: React.ComponentProps<'div'>) => {
   const { t } = useTranslation()
-  const { signInWithEmail, signInWithOAuth } = useAuth()
+  const { signInWithEmail } = useAuth()
   const [authError, setAuthError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
   const {
@@ -69,10 +69,6 @@ export const LoginForm = ({
 
       setAuthError(getErrorMessage(error.message, error.code))
     }
-  }
-
-  const handleGoogleLogin = async () => {
-    await signInWithOAuth('google')
   }
 
   return (
