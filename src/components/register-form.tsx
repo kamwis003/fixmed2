@@ -47,7 +47,7 @@ export const RegisterForm = ({
   ...props
 }: React.ComponentProps<'div'>) => {
   const { t } = useTranslation()
-  const { signUp, signInWithOAuth } = useAuth()
+  const { signUp } = useAuth()
   const [authError, setAuthError] = useState<string | null>(null)
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
   const {
@@ -123,10 +123,6 @@ export const RegisterForm = ({
     } else {
       setRegistrationSuccess(true)
     }
-  }
-
-  const handleGoogleSignUp = async () => {
-    await signInWithOAuth('google')
   }
 
   if (registrationSuccess) {

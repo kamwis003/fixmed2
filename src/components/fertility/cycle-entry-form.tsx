@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import * as React from 'react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -12,7 +11,6 @@ import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { SymptomType } from '@/types/fertility'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { useTranslation } from 'react-i18next'
 
 interface CycleEntryFormProps {
   onSubmit: (data: CycleFormData) => void
@@ -41,12 +39,19 @@ const symptomTypes: { type: SymptomType; label: string }[] = [
 ]
 
 export const CycleEntryForm = ({ onSubmit, initialData }: CycleEntryFormProps) => {
-  const { t } = useTranslation()
-  const [startDate, setStartDate] = useState<Date | undefined>(initialData?.startDate)
-  const [endDate, setEndDate] = useState<Date | undefined>(initialData?.endDate)
-  const [selectedSymptoms, setSelectedSymptoms] = useState<Set<SymptomType>>(new Set())
-  const [symptomIntensities, setSymptomIntensities] = useState<Record<SymptomType, 1 | 2 | 3 | 4 | 5>>({} as any)
-  const [notes, setNotes] = useState(initialData?.notes || '')
+  const [startDate, setStartDate] = React.useState<Date | undefined>(initialData?.startDate)
+  const [endDate, setEndDate] = React.useState<Date | undefined>(initialData?.endDate)
+  const [selectedSymptoms, setSelectedSymptoms] = React.useState<Set<SymptomType>>(
+    new Set(initialData?.symptoms?.map((s) => s.type) ?? []),
+  )
+  const [symptomIntensities, setSymptomIntensities] = React.useState<
+    Record<SymptomType, 1 | 2 | 3 | 4 | 5>
+  >(
+    Object.fromEntries(
+      initialData?.symptoms?.map((s) => [s.type, s.intensity]) ?? [],
+    ) as Record<SymptomType, 1 | 2 | 3 | 4 | 5>,
+  )
+  const [notes, setNotes] = React.useState(initialData?.notes || '')
 
   const handleSymptomToggle = (symptomType: SymptomType, checked: boolean) => {
     const newSelected = new Set(selectedSymptoms)

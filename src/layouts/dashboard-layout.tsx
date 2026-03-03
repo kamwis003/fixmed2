@@ -50,7 +50,7 @@ export const DashboardLayout = () => {
 
   const breadcrumbItems = useMemo(() => {
     if (pathnames.length === 0) {
-      return [{ name: t("pages.dashboard"), to: ROUTES.dashboard }];
+      return [{ name: t("pages.dashboard"), to: ROUTES.DASHBOARD }];
     }
 
     return [];
