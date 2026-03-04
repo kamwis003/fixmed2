@@ -157,6 +157,18 @@
       "card": {
         "currency": "PLN"
       }
+    },
+    "products": {
+      "title": "Produkty",
+      "catalog": "Katalog",
+      "my": "Moje Produkty",
+      "error": "Błąd ładowania produktów",
+      "retry": "Spróbuj ponownie",
+      "noResults": "Nie znaleziono produktów",
+      "noResultsHint": "Przeglądaj katalog, aby zobaczyć dostępne produkty",
+      "noPurchasedProducts": "Brak zakupionych produktów",
+      "noPurchasedProductsHint": "Przeglądaj katalog, aby rozpocząć",
+      "backendUnavailable": "Usługa produktów jest chwilowo niedostępna. Spróbuj ponownie później."
     }
   },
   "navigation": {
