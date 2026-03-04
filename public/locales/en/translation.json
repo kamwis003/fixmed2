@@ -26,6 +26,8 @@
     "forgotPassword": "Forgot password",
     "register": "Register",
     "login": "Login",
+    "fertility": "Fertility",
+    "endometriosis": "Endometriosis",
     "privacyPolicy": {
       "title": "Privacy Policy",
       "lastUpdated": "Last updated: January 11, 2026",
@@ -158,7 +160,34 @@
     }
   },
   "navigation": {
-    "platform": "Platform"
+    "platform": "Platform",
+    "fertility": "Fertility",
+    "endometriosis": "Endometriosis",
+    "other": "Other"
+  },
+  "endometriosis": {
+    "disclaimer": "The information on this page is for educational purposes only and does not replace professional medical advice.",
+    "info": {
+      "title": "Endometriosis",
+      "description": "Information about endometriosis – causes, symptoms and treatment.",
+      "whatIsTitle": "What is endometriosis?",
+      "whatIsContent": "Endometriosis is a condition where tissue similar to the lining of the uterus (endometrium) grows outside the uterus. It can cause pain, especially during menstruation, and difficulties getting pregnant."
+    },
+    "diary": {
+      "title": "Pain Diary",
+      "description": "Track your symptoms and pain levels over time.",
+      "placeholder": "The pain diary feature is being prepared. Soon you will be able to record and track your symptoms."
+    },
+    "visualization": {
+      "title": "Visualization",
+      "description": "Visualization of data about your symptoms.",
+      "placeholder": "The data visualization feature is being prepared. Soon you will be able to view charts and trends of your symptoms."
+    },
+    "advice": {
+      "title": "When to Contact a Doctor?",
+      "description": "Guidance on when to seek medical advice.",
+      "placeholder": "Consult a doctor if you experience severe pelvic pain, painful periods that interfere with daily life, pain during intercourse, or difficulties getting pregnant."
+    }
   },
   "auth": {
     "login": "Log in",

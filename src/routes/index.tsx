@@ -21,6 +21,10 @@ import { CycleTracking } from "@/pages/fertility/cycle-tracking";
 import { CycleCalendar } from "@/pages/fertility/cycle-calendar";
 import { FertilityEducation } from "@/pages/fertility/education";
 import { ConsultationRequest } from "@/pages/fertility/consultation-request";
+import { EndometriosisInfo } from "@/pages/endometriosis/endometriosis-info";
+import { EndometriosisDiary } from "@/pages/endometriosis/endometriosis-diary";
+import { EndometriosisVisualization } from "@/pages/endometriosis/endometriosis-visualization";
+import { EndometriosisAdvice } from "@/pages/endometriosis/endometriosis-advice";
 
 export const router = createBrowserRouter([
   {
@@ -91,6 +95,22 @@ export const router = createBrowserRouter([
               {
                 path: 'fertility/consultation',
                 element: <ConsultationRequest />, 
+              },
+              {
+                path: 'endometriosis/info',
+                element: <EndometriosisInfo />,
+              },
+              {
+                path: 'endometriosis/diary',
+                element: <EndometriosisDiary />,
+              },
+              {
+                path: 'endometriosis/visualization',
+                element: <EndometriosisVisualization />,
+              },
+              {
+                path: 'endometriosis/advice',
+                element: <EndometriosisAdvice />,
               },
             ]
           },

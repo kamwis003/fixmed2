@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Heart,
+  Activity,
 } from 'lucide-react'
 import { NavMain } from '@/components/nav-main'
 import { NavUser } from '@/components/nav-user'
@@ -27,29 +28,41 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation()
   const { setOpenMobile } = useSidebar()
 
-  const getNavMainData = () => {
-    return [
-      {
-        title: t('pages.dashboard'),
-        url: ROUTES.DASHBOARD,
-        icon: LayoutDashboard,
-        isActive: true,
-      },
-      {
-        title: t('pages.fertility'),
-        url: ROUTES.FERTILITY,
-        icon: Heart,
-        items: [
-          { url: ROUTES.FERTILITY_TRACKING, title: t('fertility.tracking.title') },
-          { url: ROUTES.FERTILITY_CALENDAR, title: t('fertility.calendar.title') },
-          { url: ROUTES.FERTILITY_EDUCATION, title: t('fertility.education.title') },
-          { url: ROUTES.FERTILITY_CONSULTATION, title: t('fertility.consultation.title') },
-        ],
-      },
-    ]
-  }
+  const fertilityNavData = [
+    {
+      title: t('pages.fertility'),
+      url: ROUTES.FERTILITY,
+      icon: Heart,
+      items: [
+        { url: ROUTES.FERTILITY_TRACKING, title: t('fertility.tracking.title') },
+        { url: ROUTES.FERTILITY_CALENDAR, title: t('fertility.calendar.title') },
+        { url: ROUTES.FERTILITY_EDUCATION, title: t('fertility.education.title') },
+        { url: ROUTES.FERTILITY_CONSULTATION, title: t('fertility.consultation.title') },
+      ],
+    },
+  ]
 
-  const navMainData = getNavMainData()
+  const endometriosisNavData = [
+    {
+      title: t('pages.endometriosis'),
+      url: ROUTES.ENDOMETRIOSIS,
+      icon: Activity,
+      items: [
+        { url: ROUTES.ENDOMETRIOSIS_INFO, title: t('endometriosis.info.title') },
+        { url: ROUTES.ENDOMETRIOSIS_DIARY, title: t('endometriosis.diary.title') },
+        { url: ROUTES.ENDOMETRIOSIS_VISUALIZATION, title: t('endometriosis.visualization.title') },
+        { url: ROUTES.ENDOMETRIOSIS_ADVICE, title: t('endometriosis.advice.title') },
+      ],
+    },
+  ]
+
+  const platformNavData = [
+    {
+      title: t('pages.dashboard'),
+      url: ROUTES.DASHBOARD,
+      icon: LayoutDashboard,
+    },
+  ]
 
   const navUserData = {
     firstName: userData?.firstName || user?.user_metadata.first_name || '',
@@ -79,7 +92,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMainData} />
+        <NavMain items={fertilityNavData} label={t('navigation.fertility')} />
+        <NavMain items={endometriosisNavData} label={t('navigation.endometriosis')} />
+        <NavMain items={platformNavData} label={t('navigation.other')} />
       </SidebarContent>
       <SidebarFooter className="p-0 md:p-2">
         <div className="flex flex-col gap-2">
