@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next'
 
 export function NavMain({
   items,
+  label,
 }: {
   items: {
     title: string
@@ -34,6 +35,7 @@ export function NavMain({
       collapsedOnly?: boolean
     }[]
   }[]
+  label?: string
 }) {
   const { t } = useTranslation()
   const location = useLocation()
@@ -52,7 +54,7 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{t('navigation.platform')}</SidebarGroupLabel>
+      <SidebarGroupLabel>{label ?? t('navigation.platform')}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
           if (item.items && item.items.length > 0) {

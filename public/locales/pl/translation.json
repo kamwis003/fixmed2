@@ -27,6 +27,7 @@
     "register": "Rejestracja",
     "login": "Logowanie",
     "fertility": "Płodność",
+    "endometriosis": "Endometrioza",
     "privacyPolicy": {
       "title": "Polityka prywatności",
       "lastUpdated": "Ostatnia aktualizacja: 11 stycznia 2026",
@@ -159,7 +160,10 @@
     }
   },
   "navigation": {
-    "platform": "Platforma"
+    "platform": "Platforma",
+    "fertility": "Płodność",
+    "endometriosis": "Endometrioza",
+    "other": "Pozostałe"
   },
   "fertility": {
     "title": "Śledzenie Płodności",
@@ -216,6 +220,30 @@
       "message": "Wiadomość do specjalisty",
       "submit": "Zarezerwuj konsultację",
       "cancel": "Anuluj"
+    }
+  },
+  "endometriosis": {
+    "disclaimer": "Informacje zawarte na tej stronie mają charakter wyłącznie edukacyjny i nie zastępują profesjonalnej porady medycznej.",
+    "info": {
+      "title": "Endometrioza",
+      "description": "Informacje o endometriozie – przyczyny, objawy i leczenie.",
+      "whatIsTitle": "Czym jest endometrioza?",
+      "whatIsContent": "Endometrioza to choroba, w której tkanka podobna do błony śluzowej macicy (endometrium) rośnie poza macicą. Może powodować ból, zwłaszcza podczas menstruacji, oraz trudności z zajściem w ciążę."
+    },
+    "diary": {
+      "title": "Dziennik bólu",
+      "description": "Śledź swoje objawy i poziom bólu na przestrzeni czasu.",
+      "placeholder": "Funkcja dziennika bólu jest w trakcie przygotowania. Wkrótce będziesz mogła rejestrować i śledzić swoje objawy."
+    },
+    "visualization": {
+      "title": "Wizualizacja",
+      "description": "Wizualizacja danych dotyczących Twoich objawów.",
+      "placeholder": "Funkcja wizualizacji danych jest w trakcie przygotowania. Wkrótce będziesz mogła przeglądać wykresy i trendy swoich objawów."
+    },
+    "advice": {
+      "title": "Kiedy skontaktować się z lekarzem?",
+      "description": "Wskazówki dotyczące tego, kiedy warto zasięgnąć porady medycznej.",
+      "placeholder": "Skonsultuj się z lekarzem, jeśli odczuwasz silne bóle miednicy, bolesne miesiączki utrudniające codzienne funkcjonowanie, ból podczas współżycia lub masz trudności z zajściem w ciążę."
     }
   },
   "auth": {

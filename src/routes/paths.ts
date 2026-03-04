@@ -31,4 +31,11 @@ export const ROUTES = {
   FERTILITY_CALENDAR: '/fertility/calendar',
   FERTILITY_EDUCATION: '/fertility/education',
   FERTILITY_CONSULTATION: '/fertility/consultation',
+
+  // Endometriosis routes
+  ENDOMETRIOSIS: '/endometriosis',
+  ENDOMETRIOSIS_INFO: '/endometriosis/info',
+  ENDOMETRIOSIS_DIARY: '/endometriosis/diary',
+  ENDOMETRIOSIS_VISUALIZATION: '/endometriosis/visualization',
+  ENDOMETRIOSIS_ADVICE: '/endometriosis/advice',
 } as const
