@@ -38,4 +38,12 @@ export const ROUTES = {
   ENDOMETRIOSIS_DIARY: '/endometriosis/diary',
   ENDOMETRIOSIS_VISUALIZATION: '/endometriosis/visualization',
   ENDOMETRIOSIS_ADVICE: '/endometriosis/advice',
+
+  // Products routes
+  PRODUCTS: {
+    ROOT: '/products',
+    CATALOG: '/products/catalog',
+    MY: '/products/my',
+    DETAILS: (slug: string) => `/products/catalog/${slug}`,
+  },
 } as const

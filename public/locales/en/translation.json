@@ -157,6 +157,18 @@
       "card": {
         "currency": "PLN"
       }
+    },
+    "products": {
+      "title": "Products",
+      "catalog": "Catalog",
+      "my": "My Products",
+      "error": "Error loading products",
+      "retry": "Try again",
+      "noResults": "No products found",
+      "noResultsHint": "Browse the catalog to see available products",
+      "noPurchasedProducts": "No purchased products",
+      "noPurchasedProductsHint": "Browse the catalog to get started",
+      "backendUnavailable": "Products service is temporarily unavailable. Please try again later."
     }
   },
   "navigation": {

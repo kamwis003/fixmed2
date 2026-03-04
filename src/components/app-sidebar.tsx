@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Heart,
   Activity,
+  Package,
 } from 'lucide-react'
 import { NavMain } from '@/components/nav-main'
 import { NavUser } from '@/components/nav-user'
@@ -61,6 +62,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: t('pages.dashboard'),
       url: ROUTES.DASHBOARD,
       icon: LayoutDashboard,
+    },
+    {
+      title: t('pages.products.title'),
+      url: ROUTES.PRODUCTS.ROOT,
+      icon: Package,
+      items: [
+        { url: ROUTES.PRODUCTS.MY, title: t('pages.products.my') },
+        { url: ROUTES.PRODUCTS.CATALOG, title: t('pages.products.catalog') },
+      ],
     },
   ]
 

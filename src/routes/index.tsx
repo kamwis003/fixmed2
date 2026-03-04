@@ -3,7 +3,7 @@ import { NotFound } from "@/pages/not-found";
 import { DashboardPage } from "@/pages/dashboard";
 import { GuestRoute } from "./guest-route";
 import { ProtectedRoute } from "./protected-route";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { DashboardLayout } from "@/layouts/dashboard-layout";
 import { TermsOfServicePage } from "@/pages/terms-of-service-page";
 import { PrivacyPolicyPage } from "@/pages/privacy-policy-page";
@@ -25,6 +25,7 @@ import { EndometriosisInfo } from "@/pages/endometriosis/endometriosis-info";
 import { EndometriosisDiary } from "@/pages/endometriosis/endometriosis-diary";
 import { EndometriosisVisualization } from "@/pages/endometriosis/endometriosis-visualization";
 import { EndometriosisAdvice } from "@/pages/endometriosis/endometriosis-advice";
+import { ProductsPage } from "@/pages/products/products-page";
 
 export const router = createBrowserRouter([
   {
@@ -111,6 +112,23 @@ export const router = createBrowserRouter([
               {
                 path: 'endometriosis/advice',
                 element: <EndometriosisAdvice />,
+              },
+              {
+                path: 'products',
+                children: [
+                  {
+                    index: true,
+                    element: <Navigate to={ROUTES.PRODUCTS.MY} replace />,
+                  },
+                  {
+                    path: 'catalog',
+                    element: <ProductsPage />,
+                  },
+                  {
+                    path: 'my',
+                    element: <ProductsPage />,
+                  },
+                ],
               },
             ]
           },
