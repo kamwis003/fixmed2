@@ -1,46 +1,28 @@
-// Added fertility phase coloring based on clicked ovulation date
-
+// Restore the original CycleCalendar implementation from main
 import React from 'react';
-import { TFertilityPhase, PHASE_COLORS, PHASE_LABEL } from './constants'; // assuming the types and colors are defined in a separate constants file
+import PhaseTooltip from './PhaseTooltip';
 
-const getPhaseForDay = (date) => {
-    // logic to determine fertility phase based on the date
-};
-
-const CalendarGrid = ({ days }) => {
-    return (
-        <div className="calendar-grid">
-            {days.map((day) => {
-                const phase = getPhaseForDay(day);
-                return (
-                    <div key={day} className={`day-cell ${PHASE_COLORS[phase]}`}> {/* Use phase colors as primary class */} 
-                        <div className="phase-dot-badge">{phase}</div> {/* Phase dot badge */} 
-                        <TooltipContent date={day} phase={phase} />
-                    </div>
-                );
-            })}
+const CycleCalendar = ({ ovulationDate, phases }) => {
+  return (
+    <div className="cycle-calendar">
+      {phases.map((phase, index) => (
+        <div key={index} className="phase" style={{ backgroundColor: phase.color }}> {/* Use phase as primary cell color */} 
+          <PhaseTooltip phase={phase} />
+          <div className="dot-badge" /> {/* Add dot badge */}
         </div>
-    );
+      ))}
+    </div>
+  );
 };
 
-const TooltipContent = ({ date, phase }) => {
-    return (
-        <div className="tooltip-content">
-            <span>{PHASE_LABEL[phase]}</span> {/* Extend TooltipContent to include phase label */}
-        </div>
-    );
-};
+// Update the legend with three phase colors
+const phaseColors = ['#ffcccc', '#ccffcc', '#ccccff']; // Example color codes
+const Legend = () => (
+  <div className="legend">
+    <div className="legend-item" style={{ backgroundColor: phaseColors[0] }}>Phase 1</div>
+    <div className="legend-item" style={{ backgroundColor: phaseColors[1] }}>Phase 2</div>
+    <div className="legend-item" style={{ backgroundColor: phaseColors[2] }}>Phase 3</div>
+  </div>
+);
 
-const Legend = () => {
-    return (
-        <div className="legend">
-            {Object.keys(PHASE_COLORS).map((phase) => (
-                <div key={phase} style={{ color: PHASE_COLORS[phase] }}>
-                    {PHASE_LABEL[phase]}
-                </div>  {/* Update legend with three phase colors */}
-            ))}
-        </div>
-    );
-};
-
-export { CalendarGrid, TooltipContent, Legend };
+export { CycleCalendar, Legend };
