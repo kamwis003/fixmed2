@@ -211,7 +211,8 @@
       "period": "Okres",
       "ovulation": "Owulacja",
       "fertile": "Płodny",
-      "predicted": "Przewidywany"
+      "predicted": "Przewidywany",
+      "estimated": "szacowane"
     },
     "education": {
       "title": "Edukacja",

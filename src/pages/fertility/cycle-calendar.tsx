@@ -210,26 +210,44 @@ function predictNextCycleStart(entries: ICycleEntryRedux[]): Date | null {
   return addDays(parseISO(last.startDate), Math.round(avg))
 }
 
-function getPhaseForDay(params: { entry: ICycleEntryRedux; date: Date }): TFertilityPhase | null {
-  const { entry, date } = params
-  if (!entry.ovulationDate) return null
+interface IPhaseResult {
+  phase: TFertilityPhase
+  isEstimated: boolean
+}
 
+function getPhaseForDay(params: {
+  entry: ICycleEntryRedux
+  date: Date
+  ovulationAvgDay: number | null
+}): IPhaseResult | null {
+  const { entry, date, ovulationAvgDay } = params
   const start = parseISO(entry.startDate)
-  const ovu = parseISO(entry.ovulationDate)
-
   const dayIndex = differenceInDays(date, start)
   if (dayIndex < 0) return null
 
-  const ovuIndex = differenceInDays(ovu, start)
+  let ovuIndex: number
+  let isEstimated: boolean
+
+  if (entry.ovulationDate) {
+    const ovu = parseISO(entry.ovulationDate)
+    ovuIndex = differenceInDays(ovu, start)
+    isEstimated = false
+  } else if (ovulationAvgDay !== null && ovulationAvgDay >= 0) {
+    ovuIndex = ovulationAvgDay
+    isEstimated = true
+  } else {
+    return null
+  }
+
   if (ovuIndex < 0) return null
 
   // Okołoowulacyjna: od 2 dni przed do 1 dnia po owulacji
   const periStart = ovuIndex - 2
   const periEnd = ovuIndex + 1
 
-  if (dayIndex < periStart) return 'pre'
-  if (dayIndex <= periEnd) return 'peri'
-  return 'post'
+  if (dayIndex < periStart) return { phase: 'pre', isEstimated }
+  if (dayIndex <= periEnd) return { phase: 'peri', isEstimated }
+  return { phase: 'post', isEstimated }
 }
 
 // ─── Tooltip content for a cycle day ──────────────────────────────────────
@@ -286,6 +304,7 @@ interface ICalendarGridProps {
   dayMap: Map<string, ICycleDayInfo>
   entries: ICycleEntryRedux[]
   predicted: Date | null
+  ovulationAvgDay: number | null
   onDayClick: (date: Date, info: ICycleDayInfo | undefined) => void
 }
 
@@ -294,8 +313,10 @@ const CalendarGrid = ({
   dayMap,
   entries,
   predicted,
+  ovulationAvgDay,
   onDayClick,
 }: ICalendarGridProps) => {
+  const { t } = useTranslation()
   const start = startOfWeek(startOfMonth(month), { weekStartsOn: 1 })
   const end = endOfWeek(endOfMonth(month), { weekStartsOn: 1 })
   const days = eachDayOfInterval({ start, end })
@@ -324,8 +345,10 @@ const CalendarGrid = ({
             ? isSameDay(parseISO(info.cycleEntry.ovulationDate), day)
             : false
 
-          const phase = info?.cycleEntry ? getPhaseForDay({ entry: info.cycleEntry, date: day }) : null
-          const phaseColors = phase ? PHASE_COLORS[phase] : null
+          const phase = info?.cycleEntry
+            ? getPhaseForDay({ entry: info.cycleEntry, date: day, ovulationAvgDay })
+            : null
+          const phaseColors = phase ? PHASE_COLORS[phase.phase] : null
 
           const colors =
             info !== undefined
@@ -357,7 +380,7 @@ const CalendarGrid = ({
               <span className="font-medium leading-none">{format(day, 'd')}</span>
               {phase && (
                 <span
-                  className={['absolute right-1 top-1 h-2 w-2 rounded-full', PHASE_COLORS[phase].badge].join(' ')}
+                  className={['absolute right-1 top-1 h-2 w-2 rounded-full', PHASE_COLORS[phase.phase].badge].join(' ')}
                 />
               )}
               {isOvulation && (
@@ -378,7 +401,10 @@ const CalendarGrid = ({
                     <div className="space-y-2">
                       {phase && (
                         <div className="text-xs">
-                          <span className="font-semibold">Faza:</span> {PHASE_LABEL[phase]}
+                          <span className="font-semibold">Faza:</span> {PHASE_LABEL[phase.phase]}
+                          {phase.isEstimated && (
+                            <span className="text-muted-foreground"> ({t('fertility.calendar.estimated')})</span>
+                          )}
                         </div>
                       )}
                       <CycleDayTooltip info={info} entries={entries} predicted={predicted} />
@@ -487,6 +513,7 @@ export const CycleCalendar = () => {
                   dayMap={dayMap}
                   entries={entries}
                   predicted={predicted}
+                  ovulationAvgDay={stats.ovulationAvgDay}
                   onDayClick={handleDayClick}
                 />
               )}

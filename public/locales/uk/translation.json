@@ -422,5 +422,10 @@
     "learnMore": "Дізнатись більше",
     "decline": "Відхилити",
     "accept": "Прийняти"
+  },
+  "fertility": {
+    "calendar": {
+      "estimated": "орієнтовно"
+    }
   }
 }
