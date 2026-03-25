@@ -422,5 +422,10 @@
     "learnMore": "Learn more",
     "decline": "Decline",
     "accept": "Accept"
+  },
+  "fertility": {
+    "calendar": {
+      "estimated": "estimated"
+    }
   }
 }
