@@ -28,12 +28,8 @@ import {
   differenceInDays,
 } from 'date-fns'
 import { pl } from 'date-fns/locale'
-import { useAppDispatch, useAppSelector } from '@/redux/hooks'
-import {
-  selectFertilityEntries,
-  setOvulationDate,
-  type ICycleEntryRedux,
-} from '@/redux/fertility-slice'
+import { useAppSelector } from '@/redux/hooks'
+import { selectFertilityEntries, type ICycleEntryRedux } from '@/redux/fertility-slice'
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -47,6 +43,17 @@ const CYCLE_COLORS_B = {
   text: 'text-violet-900 dark:text-violet-100',
   dot: 'bg-violet-500',
 }
+const FERTILE_COLORS = {
+  bg: 'bg-green-100 dark:bg-green-900',
+  text: 'text-green-900 dark:text-green-100',
+}
+const OVULATION_COLORS = {
+  bg: 'bg-green-300 dark:bg-green-700',
+  text: 'text-green-950 dark:text-green-50',
+}
+
+const DEFAULT_CYCLE_LENGTH = 28
+const FERTILE_WINDOW_DAYS = 5
 
 function toDateStr(date: Date): string {
   return format(date, 'yyyy-MM-dd')
@@ -87,6 +94,41 @@ function buildDayMap(entries: ICycleEntryRedux[]): Map<string, ICycleDayInfo> {
       })
     })
   })
+
+  return map
+}
+
+// Predict ovulation date for a given cycle start and average cycle length.
+// Ovulation typically occurs 14 days before the next period.
+function predictOvulationDate(cycleStart: Date, avgCycleLength: number): Date {
+  return addDays(cycleStart, Math.round(avgCycleLength) - 14)
+}
+
+type TOvulationDayKind = 'ovulation' | 'fertile'
+
+// Build a map of dates → kind for predicted ovulation and fertile window.
+// The fertile window covers the 5 days leading up to (and including) ovulation day.
+function buildOvulationMap(
+  entries: ICycleEntryRedux[],
+  avgCycleLength: number | null,
+  predictedNext: Date | null,
+): Map<string, TOvulationDayKind> {
+  const map = new Map<string, TOvulationDayKind>()
+  const cycleLen = avgCycleLength ?? DEFAULT_CYCLE_LENGTH
+
+  const markCycle = (startDate: Date) => {
+    const ovDate = predictOvulationDate(startDate, cycleLen)
+    // Fertile window: FERTILE_WINDOW_DAYS days before ovulation
+    for (let i = -FERTILE_WINDOW_DAYS; i < 0; i++) {
+      const key = toDateStr(addDays(ovDate, i))
+      if (!map.has(key)) map.set(key, 'fertile')
+    }
+    // Ovulation day itself
+    map.set(toDateStr(ovDate), 'ovulation')
+  }
+
+  entries.forEach((entry) => markCycle(parseISO(entry.startDate)))
+  if (predictedNext) markCycle(predictedNext)
 
   return map
 }
@@ -190,9 +232,10 @@ interface ICycleTooltipProps {
   info: ICycleDayInfo
   entries: ICycleEntryRedux[]
   predicted: Date | null
+  avgCycleLength: number | null
 }
 
-const CycleDayTooltip = ({ info, entries, predicted }: ICycleTooltipProps) => {
+const CycleDayTooltip = ({ info, entries, predicted, avgCycleLength }: ICycleTooltipProps) => {
   const entry = info.cycleEntry
   const start = parseISO(entry.startDate)
   const end = entry.endDate ? parseISO(entry.endDate) : null
@@ -200,29 +243,35 @@ const CycleDayTooltip = ({ info, entries, predicted }: ICycleTooltipProps) => {
   const nextPredicted =
     predicted && entries[entries.length - 1]?.id === entry.id ? predicted : null
 
+  const cycleLen = avgCycleLength ?? DEFAULT_CYCLE_LENGTH
+  const predictedOvulation = predictOvulationDate(start, cycleLen)
+
   return (
     <div className="space-y-1 text-xs">
       <p>
-        <span className="font-semibold">Początek cyklu:</span>{' '}
+        <span className="font-semibold">Początek krwawienia:</span>{' '}
         {format(start, 'd MMM yyyy', { locale: pl })}
       </p>
       {end && (
         <p>
-          <span className="font-semibold">Koniec cyklu:</span>{' '}
+          <span className="font-semibold">Koniec krwawienia:</span>{' '}
           {format(end, 'd MMM yyyy', { locale: pl })}
         </p>
       )}
-      {!end && <p className="text-yellow-300">Cykl w toku</p>}
+      {!end && <p className="text-yellow-300">Krwawienie w toku</p>}
+      <p>
+        <span className="font-semibold">Przewidywana owulacja:</span>{' '}
+        {format(predictedOvulation, 'd MMM yyyy', { locale: pl })}
+      </p>
+      <p>
+        <span className="font-semibold">Okno płodne:</span>{' '}
+        {format(addDays(predictedOvulation, -FERTILE_WINDOW_DAYS), 'd MMM', { locale: pl })} –{' '}
+        {format(predictedOvulation, 'd MMM yyyy', { locale: pl })}
+      </p>
       {nextPredicted && (
         <p>
-          <span className="font-semibold">Prognoza następnego:</span>{' '}
+          <span className="font-semibold">Prognoza następnego krwawienia:</span>{' '}
           {format(nextPredicted, 'd MMM yyyy', { locale: pl })}
-        </p>
-      )}
-      {entry.ovulationDate && (
-        <p>
-          <span className="font-semibold">Owulacja:</span>{' '}
-          {format(parseISO(entry.ovulationDate), 'd MMM yyyy', { locale: pl })}
         </p>
       )}
     </div>
@@ -236,17 +285,19 @@ const WEEKDAYS = ['Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob', 'Ndz']
 interface ICalendarGridProps {
   month: Date
   dayMap: Map<string, ICycleDayInfo>
+  ovulationMap: Map<string, TOvulationDayKind>
   entries: ICycleEntryRedux[]
   predicted: Date | null
-  onDayClick: (date: Date, info: ICycleDayInfo | undefined) => void
+  avgCycleLength: number | null
 }
 
 const CalendarGrid = ({
   month,
   dayMap,
+  ovulationMap,
   entries,
   predicted,
-  onDayClick,
+  avgCycleLength,
 }: ICalendarGridProps) => {
   const start = startOfWeek(startOfMonth(month), { weekStartsOn: 1 })
   const end = endOfWeek(endOfMonth(month), { weekStartsOn: 1 })
@@ -271,42 +322,51 @@ const CalendarGrid = ({
         {days.map((day) => {
           const key = toDateStr(day)
           const info = dayMap.get(key)
+          const ovulationKind = ovulationMap.get(key)
           const inCurrentMonth = isSameMonth(day, month)
-          const isOvulation = info?.cycleEntry.ovulationDate
-            ? isSameDay(parseISO(info.cycleEntry.ovulationDate), day)
-            : false
 
-          const colors =
+          // Period coloring takes priority over fertile/ovulation coloring
+          const periodColors =
             info !== undefined
               ? info.cycleIndex % 2 === 0
                 ? CYCLE_COLORS_A
                 : CYCLE_COLORS_B
               : null
 
+          const bgClass = periodColors
+            ? `${periodColors.bg} ${periodColors.text}`
+            : ovulationKind === 'ovulation'
+              ? `${OVULATION_COLORS.bg} ${OVULATION_COLORS.text}`
+              : ovulationKind === 'fertile'
+                ? `${FERTILE_COLORS.bg} ${FERTILE_COLORS.text}`
+                : 'hover:bg-muted'
+
           const isPredicted = predicted && isSameDay(day, predicted)
 
           const cell = (
-            <button
+            <div
               key={key}
-              onClick={() => onDayClick(day, info)}
               className={[
-                'relative flex flex-col items-center justify-center h-12 w-full rounded-lg text-sm transition-colors',
-                'hover:ring-2 hover:ring-primary/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                'relative flex flex-col items-center justify-center h-12 w-full rounded-lg text-sm',
+                info ? 'cursor-default' : '',
                 inCurrentMonth ? '' : 'opacity-30',
-                colors ? `${colors.bg} ${colors.text}` : 'hover:bg-muted',
+                bgClass,
                 isToday(day) ? 'ring-2 ring-primary' : '',
               ]
                 .filter(Boolean)
                 .join(' ')}
             >
               <span className="font-medium leading-none">{format(day, 'd')}</span>
-              {isOvulation && (
+              {ovulationKind === 'ovulation' && (
                 <span className="absolute bottom-1 text-[10px] leading-none">🥚</span>
+              )}
+              {ovulationKind === 'fertile' && (
+                <span className="absolute bottom-1 text-[10px] leading-none">🌿</span>
               )}
               {isPredicted && !info && (
                 <span className="absolute bottom-1 text-[10px] leading-none">📅</span>
               )}
-            </button>
+            </div>
           )
 
           if (info) {
@@ -314,8 +374,13 @@ const CalendarGrid = ({
               <TooltipProvider key={key} delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>{cell}</TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-[200px]">
-                    <CycleDayTooltip info={info} entries={entries} predicted={predicted} />
+                  <TooltipContent side="top" className="max-w-[220px]">
+                    <CycleDayTooltip
+                      info={info}
+                      entries={entries}
+                      predicted={predicted}
+                      avgCycleLength={avgCycleLength}
+                    />
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -348,7 +413,6 @@ export const CycleCalendar = () => {
   const { t } = useTranslation()
   useDocumentTitle('fertility.calendar.title')
 
-  const dispatch = useAppDispatch()
   const entries = useAppSelector(selectFertilityEntries)
 
   const [currentMonth, setCurrentMonth] = React.useState(() => startOfMonth(new Date()))
@@ -356,21 +420,15 @@ export const CycleCalendar = () => {
   const dayMap = React.useMemo(() => buildDayMap(entries), [entries])
   const stats = React.useMemo(() => calculateStats(entries), [entries])
   const predicted = React.useMemo(() => predictNextCycleStart(entries), [entries])
+  const ovulationMap = React.useMemo(
+    () => buildOvulationMap(entries, stats.averageLength, predicted),
+    [entries, stats.averageLength, predicted],
+  )
 
-  const handleDayClick = (date: Date, info: ICycleDayInfo | undefined) => {
-    if (!info) return
-    const entry = info.cycleEntry
-    const ovulationDateISO = date.toISOString()
-    const isAlreadyOvulation =
-      entry.ovulationDate && isSameDay(parseISO(entry.ovulationDate), date)
-
-    dispatch(
-      setOvulationDate({
-        entryId: entry.id,
-        date: isAlreadyOvulation ? undefined : ovulationDateISO,
-      }),
-    )
-  }
+  const lastEntry = entries.length > 0 ? entries[entries.length - 1] : null
+  const predictedOvulationForLast = lastEntry
+    ? predictOvulationDate(parseISO(lastEntry.startDate), stats.averageLength ?? DEFAULT_CYCLE_LENGTH)
+    : null
 
   const prevMonth = () => setCurrentMonth((m) => addMonths(m, -1))
   const nextMonth = () => setCurrentMonth((m) => addMonths(m, 1))
@@ -405,7 +463,7 @@ export const CycleCalendar = () => {
                 </Button>
               </div>
               <CardDescription className="text-center text-xs">
-                Kliknij w dzień cyklu, aby zaznaczyć / odznaczyć owulację
+                Owulacja i okno płodne są obliczane automatycznie na podstawie dat krwawienia
               </CardDescription>
             </CardHeader>
             <CardContent className="px-4 pb-6">
@@ -418,9 +476,10 @@ export const CycleCalendar = () => {
                 <CalendarGrid
                   month={currentMonth}
                   dayMap={dayMap}
+                  ovulationMap={ovulationMap}
                   entries={entries}
                   predicted={predicted}
-                  onDayClick={handleDayClick}
+                  avgCycleLength={stats.averageLength}
                 />
               )}
             </CardContent>
@@ -434,15 +493,19 @@ export const CycleCalendar = () => {
             <CardContent className="flex flex-wrap gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="h-4 w-4 rounded bg-rose-300 dark:bg-rose-700" />
-                <span>Cykl (parzysty)</span>
+                <span>Krwawienie (parzysty cykl)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-4 w-4 rounded bg-violet-300 dark:bg-violet-700" />
-                <span>Cykl (nieparzysty)</span>
+                <span>Krwawienie (nieparzysty cykl)</span>
               </div>
               <div className="flex items-center gap-2">
-                <span>🥚</span>
-                <span>Owulacja</span>
+                <div className="h-4 w-4 rounded bg-green-300 dark:bg-green-700" />
+                <span>🥚 Przewidywana owulacja</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 rounded bg-green-100 dark:bg-green-900" />
+                <span>🌿 Okno płodne (5 dni przed owulacją)</span>
               </div>
               <div className="flex items-center gap-2">
                 <span>📅</span>
@@ -463,9 +526,26 @@ export const CycleCalendar = () => {
               <CardTitle className="text-lg">Statystyki</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
+              {predictedOvulationForLast && stats.averageLength === null && (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Przewidywana owulacja (bieżący cykl)
+                  </p>
+                  <p className="font-semibold text-green-700 dark:text-green-400">
+                    {format(predictedOvulationForLast, 'd MMMM yyyy', { locale: pl })}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Okno płodne: {format(addDays(predictedOvulationForLast, -FERTILE_WINDOW_DAYS), 'd MMM', { locale: pl })} –{' '}
+                    {format(predictedOvulationForLast, 'd MMM yyyy', { locale: pl })}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Szacunek oparty na domyślnym cyklu 28 dni. Dodaj więcej wpisów dla dokładniejszej prognozy.
+                  </p>
+                </div>
+              )}
               {stats.averageLength === null ? (
                 <p className="text-sm text-muted-foreground">
-                  Dodaj co najmniej 2 cykle, aby zobaczyć statystyki.
+                  Dodaj co najmniej 2 cykle, aby zobaczyć szczegółowe statystyki.
                 </p>
               ) : (
                 <>
@@ -514,6 +594,21 @@ export const CycleCalendar = () => {
                               : ' – nieregularna owulacja'}
                         </p>
                       )}
+                    </div>
+                  )}
+
+                  {predictedOvulationForLast && (
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Przewidywana owulacja (bieżący cykl)
+                      </p>
+                      <p className="font-semibold text-green-700 dark:text-green-400">
+                        {format(predictedOvulationForLast, 'd MMMM yyyy', { locale: pl })}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Okno płodne: {format(addDays(predictedOvulationForLast, -FERTILE_WINDOW_DAYS), 'd MMM', { locale: pl })} –{' '}
+                        {format(predictedOvulationForLast, 'd MMM yyyy', { locale: pl })}
+                      </p>
                     </div>
                   )}
 
